@@ -252,25 +252,50 @@ async def process_message(session: Dict, message: str) -> str:
     
     # Si está seleccionando DJ
     elif session["estado"] == "seleccionando_dj":
-        dj_seleccionado = extraer_nombre_dj(message)
-        if dj_seleccionado != "DJ seleccionado":
-            session["dj_seleccionado"] = dj_seleccionado
-            session["estado"] = "recopilando_datos"
+        # Primero verificar si es una nueva intención de contratación
+        palabras_booking = [
+            "contratar", "booking", "book", "contratación", 
+            "quiero contratar", "me gustaría contratar", "necesito contratar",
+            "busco dj", "busco un dj", "necesito dj", "quiero dj",
+            "reservar", "reserva", "evento", "fiesta", "celebración",
+            "dj para evento", "dj para fiesta", "contratar dj",
+            "precio", "precios", "cuanto cuesta", "tarifas",
+            "disponible", "disponibilidad", "fecha"
+        ]
+        
+        if any(palabra in message.lower() for palabra in palabras_booking):
+            # Usuario quiere contratar, mostrar lista de DJs
+            response = "¡Perfecto! Te muestro todos los DJs que tenemos disponibles con toda su informacion:\n"
+            response += "=" * 70 + "\n\n"
             
-            response = f"¡Excelente eleccion! Has seleccionado a {dj_seleccionado}\n"
-            response += "Para cerrar la contratacion necesito los siguientes datos obligatorios:\n"
-            response += "+ Localizacion del evento\n"
-            response += "+ Fecha del evento\n"
-            response += "+ Duracion de la actuacion\n"
-            response += "+ Nombre y apellidos\n"
-            response += "+ Telefono\n"
-            response += "+ Correo electronico\n\n"
-            response += "Empecemos con el primer dato.\n"
-            response += "Localizacion del evento:"
+            # Mostrar todos los DJs
+            response += format_djs_info(djs_database)
+            
+            response += "\n" + "=" * 70
+            response += "\n\n¿Cual de estos artistas te interesa contratar?"
             
             return response
         else:
-            return "No he reconocido ese artista. Por favor, selecciona uno de la lista anterior."
+            # Intentar extraer nombre de DJ
+            dj_seleccionado = extraer_nombre_dj(message)
+            if dj_seleccionado != "DJ seleccionado":
+                session["dj_seleccionado"] = dj_seleccionado
+                session["estado"] = "recopilando_datos"
+                
+                response = f"¡Excelente eleccion! Has seleccionado a {dj_seleccionado}\n"
+                response += "Para cerrar la contratacion necesito los siguientes datos obligatorios:\n"
+                response += "+ Localizacion del evento\n"
+                response += "+ Fecha del evento\n"
+                response += "+ Duracion de la actuacion\n"
+                response += "+ Nombre y apellidos\n"
+                response += "+ Telefono\n"
+                response += "+ Correo electronico\n\n"
+                response += "Empecemos con el primer dato.\n"
+                response += "Localizacion del evento:"
+                
+                return response
+            else:
+                return "No he reconocido ese artista. Por favor, selecciona uno de la lista anterior."
     
     # Si está recopilando datos
     elif session["estado"] == "recopilando_datos":
