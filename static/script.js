@@ -92,7 +92,7 @@ class ChatInterface {
         } catch (error) {
             console.error('Error sending message:', error);
             this.addMessage(
-                'I apologize, but I encountered a technical issue. Please try again.',
+                'Lo siento, ocurrió un error técnico. Por favor, intenta de nuevo.',
                 'assistant'
             );
         } finally {
@@ -113,7 +113,7 @@ class ChatInterface {
         
         const senderSpan = document.createElement('span');
         senderSpan.className = 'sender-name';
-        senderSpan.textContent = sender === 'user' ? 'You' : 'Assistant';
+        senderSpan.textContent = sender === 'user' ? 'Tú' : 'Asistente';
         
         const timeSpan = document.createElement('span');
         timeSpan.className = 'message-time';
@@ -181,7 +181,7 @@ class ChatInterface {
     handleConversationEnd() {
         setTimeout(() => {
             this.addMessage(
-                'Thank you for using our service. Feel free to start a new conversation anytime.',
+                'Gracias por usar nuestro servicio. Puedes iniciar una nueva conversación cuando quieras.',
                 'assistant'
             );
             
