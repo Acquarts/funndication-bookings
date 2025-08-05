@@ -5,6 +5,10 @@ from pydantic import BaseModel
 import uuid
 from typing import Dict, Optional
 import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
 
 # Importar la lógica del chatbot existente
 from main import (
@@ -17,6 +21,14 @@ from main import (
     verificar_disponibilidad,
     buscar_en_texto
 )
+
+# Importar OpenAI handler
+try:
+    from openai_handler import openai_handler
+    OPENAI_ENABLED = openai_handler is not None
+except ImportError:
+    OPENAI_ENABLED = False
+    openai_handler = None
 
 app = FastAPI(title="Funndication DJ Bookings API", version="1.0.0")
 
@@ -68,6 +80,13 @@ async def startup_event():
             print(f"[DATA] Base de datos DJs cargada desde: {nombre}")
     
     print("[OK] Sistema listo para recibir requests")
+    
+    # Verificar estado de OpenAI
+    if OPENAI_ENABLED:
+        print("[OK] OpenAI integrado - Conversaciones inteligentes habilitadas")
+    else:
+        print("[INFO] OpenAI no configurado - Funcionando con lógica de palabras clave")
+        print("[INFO] Para habilitar OpenAI, configura OPENAI_API_KEY en .env")
 
 def create_session() -> str:
     """Crear nueva sesión"""
@@ -151,8 +170,68 @@ async def process_message(session: Dict, message: str) -> str:
     
     # Si es el primer mensaje o está en estado inicial
     if session["estado"] == "inicial":
-        # Detectar intención de contratación
-        palabras_booking = ["contratar", "booking", "book", "contratación", "quiero contratar", "me gustaría contratar", "necesito contratar"]
+        
+        # Usar OpenAI si está disponible
+        if OPENAI_ENABLED:
+            try:
+                # Analizar intención con OpenAI
+                intent_analysis = openai_handler.analyze_user_intent(message, djs_database)
+                
+                if intent_analysis["intent"] == "booking" or intent_analysis["confidence"] > 0.7:
+                    session["estado"] = "seleccionando_dj"
+                    
+                    if intent_analysis["entities"]["dj_mentioned"]:
+                        # Si mencionó un DJ específico, ir directamente a la selección
+                        dj_name = intent_analysis["entities"]["dj_mentioned"]
+                        session["dj_seleccionado"] = dj_name
+                        session["estado"] = "recopilando_datos"
+                        
+                        response = f"¡Excelente elección! Has seleccionado a {dj_name}\n"
+                        response += openai_handler.extract_dj_info(dj_name, djs_database) + "\n\n"
+                        response += "Para cerrar la contratación necesito los siguientes datos obligatorios:\n"
+                        response += "+ Localización del evento\n+ Fecha del evento\n+ Duración de la actuación\n"
+                        response += "+ Nombre y apellidos\n+ Teléfono\n+ Correo electrónico\n\n"
+                        response += "Empecemos con el primer dato.\nLocalización del evento:"
+                        return response
+                    else:
+                        # Mostrar todos los DJs con respuesta inteligente
+                        response = openai_handler.generate_response(
+                            message, 
+                            "Usuario quiere contratar un DJ - mostrar lista completa", 
+                            djs_database
+                        )
+                        response += "\n\n" + "=" * 70 + "\n"
+                        response += format_djs_info(djs_database)
+                        response += "\n" + "=" * 70 + "\n\n¿Cuál de estos artistas te interesa contratar?"
+                        return response
+                
+                elif intent_analysis["entities"]["dj_mentioned"]:
+                    # Pregunta específica sobre un DJ
+                    dj_name = intent_analysis["entities"]["dj_mentioned"]
+                    return openai_handler.extract_dj_info(dj_name, djs_database)
+                
+                else:
+                    # Respuesta general con OpenAI
+                    return openai_handler.generate_response(
+                        message, 
+                        "Usuario hace pregunta general sobre DJs o servicios", 
+                        djs_database
+                    )
+                    
+            except Exception as e:
+                print(f"Error con OpenAI: {e}")
+                # Fallback al sistema original
+        
+        # Fallback: Sistema original (sin OpenAI)
+        palabras_booking = [
+            "contratar", "booking", "book", "contratación", 
+            "quiero contratar", "me gustaría contratar", "necesito contratar",
+            "busco dj", "busco un dj", "necesito dj", "quiero dj",
+            "reservar", "reserva", "evento", "fiesta", "celebración",
+            "dj para evento", "dj para fiesta", "contratar dj",
+            "precio", "precios", "cuanto cuesta", "tarifas",
+            "disponible", "disponibilidad", "fecha"
+        ]
         
         if any(palabra in message.lower() for palabra in palabras_booking):
             session["estado"] = "seleccionando_dj"
