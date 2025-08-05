@@ -511,6 +511,294 @@ def finalizar_contratacion_web(dj: str, datos: Dict, database: str) -> str:
     
     return response
 
+def get_all_contrataciones():
+    """Obtiene todas las contrataciones de la base de datos"""
+    import sqlite3
+    try:
+        conn = sqlite3.connect('contrataciones.db')
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT id, dj_nombre, cliente_nombre, cliente_telefono, cliente_email,
+                   localizacion, fecha_evento, duracion, precio_total, 
+                   fecha_contratacion, estado
+            FROM contrataciones 
+            ORDER BY fecha_contratacion DESC
+        """)
+        
+        contrataciones = cursor.fetchall()
+        conn.close()
+        
+        # Convertir a lista de diccionarios
+        columns = ['id', 'dj_nombre', 'cliente_nombre', 'cliente_telefono', 'cliente_email',
+                  'localizacion', 'fecha_evento', 'duracion', 'precio_total', 
+                  'fecha_contratacion', 'estado']
+        
+        return [dict(zip(columns, row)) for row in contrataciones]
+        
+    except Exception as e:
+        print(f"Error obteniendo contrataciones: {e}")
+        return []
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_panel():
+    """Panel de administración para ver contrataciones"""
+    contrataciones = get_all_contrataciones()
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Panel Admin - Funndication DJ Bookings</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f5f7fa;
+                color: #333;
+                line-height: 1.6;
+            }}
+            
+            .container {{
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }}
+            
+            .header {{
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                margin-bottom: 30px;
+                text-align: center;
+            }}
+            
+            .header h1 {{
+                color: #2c3e50;
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }}
+            
+            .stats {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            
+            .stat-card {{
+                background: white;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                text-align: center;
+            }}
+            
+            .stat-number {{
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: #3498db;
+                margin-bottom: 5px;
+            }}
+            
+            .stat-label {{
+                color: #7f8c8d;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
+            
+            .table-container {{
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }}
+            
+            .table-header {{
+                background: #34495e;
+                color: white;
+                padding: 20px;
+                font-size: 1.1rem;
+                font-weight: 600;
+            }}
+            
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+            }}
+            
+            th, td {{
+                padding: 15px;
+                text-align: left;
+                border-bottom: 1px solid #ecf0f1;
+            }}
+            
+            th {{
+                background-color: #f8f9fa;
+                font-weight: 600;
+                color: #2c3e50;
+                position: sticky;
+                top: 0;
+            }}
+            
+            tr:hover {{
+                background-color: #f8f9fa;
+            }}
+            
+            .price {{
+                font-weight: bold;
+                color: #27ae60;
+            }}
+            
+            .status {{
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+            }}
+            
+            .status-confirmada {{
+                background-color: #d5f4e6;
+                color: #27ae60;
+            }}
+            
+            .dj-name {{
+                font-weight: 600;
+                color: #2c3e50;
+            }}
+            
+            .empty-state {{
+                text-align: center;
+                padding: 60px 20px;
+                color: #7f8c8d;
+            }}
+            
+            .empty-state h3 {{
+                margin-bottom: 10px;
+                color: #95a5a6;
+            }}
+            
+            @media (max-width: 768px) {{
+                .container {{
+                    padding: 10px;
+                }}
+                
+                table {{
+                    font-size: 0.9rem;
+                }}
+                
+                th, td {{
+                    padding: 10px 8px;
+                }}
+                
+                .stats {{
+                    grid-template-columns: 1fr 1fr;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🎵 Panel de Administración</h1>
+                <p>Gestión de Contrataciones - Funndication DJ Bookings</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{len(contrataciones)}</div>
+                    <div class="stat-label">Total Contrataciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{sum(c['precio_total'] for c in contrataciones):.0f}€</div>
+                    <div class="stat-label">Ingresos Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{len(set(c['dj_nombre'] for c in contrataciones))}</div>
+                    <div class="stat-label">DJs Contratados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{len([c for c in contrataciones if c['estado'] == 'confirmada'])}</div>
+                    <div class="stat-label">Confirmadas</div>
+                </div>
+            </div>
+    """
+    
+    if contrataciones:
+        html_content += """
+            <div class="table-container">
+                <div class="table-header">
+                    📋 Listado de Contrataciones
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>DJ</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Localización</th>
+                            <th>Fecha Evento</th>
+                            <th>Duración</th>
+                            <th>Precio</th>
+                            <th>Contratado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+        
+        for c in contrataciones:
+            html_content += f"""
+                        <tr>
+                            <td>#{c['id']}</td>
+                            <td class="dj-name">{c['dj_nombre']}</td>
+                            <td>{c['cliente_nombre']}</td>
+                            <td>{c['cliente_telefono']}</td>
+                            <td>{c['cliente_email']}</td>
+                            <td>{c['localizacion']}</td>
+                            <td>{c['fecha_evento']}</td>
+                            <td>{c['duracion']}</td>
+                            <td class="price">{c['precio_total']:.0f}€</td>
+                            <td>{c['fecha_contratacion'][:16]}</td>
+                            <td><span class="status status-{c['estado']}">{c['estado']}</span></td>
+                        </tr>
+            """
+        
+        html_content += """
+                    </tbody>
+                </table>
+            </div>
+        """
+    else:
+        html_content += """
+            <div class="table-container">
+                <div class="empty-state">
+                    <h3>📭 No hay contrataciones aún</h3>
+                    <p>Las contrataciones aparecerán aquí una vez que los clientes completen el proceso.</p>
+                </div>
+            </div>
+        """
+    
+    html_content += """
+        </div>
+    </body>
+    </html>
+    """
+    
+    return html_content
+
 @app.get("/health")
 async def health_check():
     """Endpoint de salud para Railway"""
