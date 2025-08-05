@@ -113,7 +113,7 @@ class ChatInterface {
         
         const senderSpan = document.createElement('span');
         senderSpan.className = 'sender-name';
-        senderSpan.textContent = sender === 'user' ? 'Tú' : 'Asistente';
+        senderSpan.textContent = sender === 'user' ? 'Tú' : 'Funndication';
         
         const timeSpan = document.createElement('span');
         timeSpan.className = 'message-time';
