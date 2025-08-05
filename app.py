@@ -247,9 +247,8 @@ async def process_message(session: Dict, message: str) -> str:
             
             return response
         else:
-            # Buscar información específica
-            informacion = buscar_en_texto(djs_database, message)
-            return f"Basandome en nuestra base de datos: {informacion}"
+            # Respuestas naturales para mensajes comunes
+            return handle_general_message(message, djs_database)
     
     # Si está seleccionando DJ
     elif session["estado"] == "seleccionando_dj":
@@ -326,6 +325,86 @@ def format_djs_info(database: str) -> str:
         resultado += dj_info
     
     return resultado
+
+def handle_general_message(message: str, database: str) -> str:
+    """Maneja mensajes generales con respuestas naturales"""
+    message_lower = message.lower().strip()
+    
+    # Saludos
+    saludos = ["hola", "hi", "hello", "buenos días", "buenas tardes", "buenas noches", "hey", "que tal"]
+    if any(saludo in message_lower for saludo in saludos):
+        return ("¡Hola! Soy tu manager de DJs de Funndication Bookings. 🎵\n\n"
+                "Estoy aquí para ayudarte a contratar el DJ perfecto para tu evento.\n\n"
+                "Puedes decirme:\n"
+                "• 'Quiero contratar un DJ'\n"
+                "• 'Precios de DJs'\n"
+                "• 'Cuánto cuesta [nombre del DJ]'\n"
+                "• 'Disponibilidad para [fecha]'\n\n"
+                "¿En qué puedo ayudarte hoy?")
+    
+    # Despedidas
+    despedidas = ["adiós", "adios", "hasta luego", "bye", "chao", "nos vemos"]
+    if any(despedida in message_lower for despedida in despedidas):
+        return ("¡Hasta luego! Ha sido un placer ayudarte.\n\n"
+                "Si necesitas contratar algún DJ en el futuro, ya sabes dónde encontrarme. 🎧\n\n"
+                "¡Que tengas un día espectacular!")
+    
+    # Agradecimientos
+    gracias = ["gracias", "thank you", "thanks", "muchas gracias"]
+    if any(palabra in message_lower for palabra in gracias):
+        return ("¡De nada! Es un placer ayudarte con tu booking. 😊\n\n"
+                "¿Hay algo más en lo que pueda asistirte?")
+    
+    # Preguntas sobre el servicio
+    if any(palabra in message_lower for palabra in ["que haces", "qué haces", "quien eres", "quién eres", "servicio"]):
+        return ("Soy el manager de DJs más especializado de Funndication Bookings. 🎵\n\n"
+                "Me encargo de:\n"
+                "✅ Ayudarte a encontrar el DJ perfecto\n"
+                "✅ Calcular precios exactos según tu evento\n"
+                "✅ Verificar disponibilidad de fechas\n"
+                "✅ Gestionar toda la contratación\n\n"
+                "Tenemos 5 increíbles DJs especializados en Break Beat.\n\n"
+                "¿Te gustaría ver nuestros artistas disponibles?")
+    
+    # Preguntas sobre géneros musicales
+    if any(palabra in message_lower for palabra in ["música", "genero", "género", "estilo", "break beat", "breakbeat"]):
+        return ("¡Excelente pregunta! Nuestros DJs se especializan en Break Beat. 🎵\n\n"
+                "Es un género electrónico con ritmos únicos y energia increíble, "
+                "perfecto para cualquier tipo de evento.\n\n"
+                "Todos nuestros artistas dominan este estilo a la perfección:\n"
+                "• The Brainkiller\n"
+                "• Jose Rodriguez\n"
+                "• Tortu\n"
+                "• V. Aparicio\n"
+                "• Wardian\n\n"
+                "¿Te gustaría conocer más sobre alguno en particular?")
+    
+    # Preguntas sobre precios generales
+    if any(palabra in message_lower for palabra in ["caro", "barato", "económico", "presupuesto", "cuanto"]):
+        return ("Te explico nuestros rangos de precios: 💰\n\n"
+                "🎵 **Opciones más económicas:**\n"
+                "• V. Aparicio: desde 600€\n"
+                "• Wardian: desde 600€\n\n"
+                "🎵 **Rango medio:**\n"
+                "• Jose Rodriguez: desde 1.000€\n"
+                "• Tortu: desde 1.200€\n\n"
+                "🎵 **Premium:**\n"
+                "• The Brainkiller: desde 1.600€\n\n"
+                "Los precios incluyen 1 hora base, +300€ por hora adicional.\n"
+                "¿Te interesa alguno en particular?")
+    
+    # Si no reconoce nada, buscar en la base de datos
+    informacion = buscar_en_texto(database, message)
+    if informacion and "No encontré información específica" not in informacion:
+        return f"Basándome en nuestra base de datos: {informacion}"
+    
+    # Respuesta por defecto más natural
+    return ("No estoy seguro de entender exactamente qué necesitas. 🤔\n\n"
+            "Te puedo ayudar con:\n"
+            "• Contratar DJs para tu evento\n"
+            "• Consultar precios y disponibilidad\n"
+            "• Información sobre nuestros artistas\n\n"
+            "¿Podrías decirme qué tipo de ayuda necesitas?")
 
 def finalizar_contratacion_web(dj: str, datos: Dict, database: str) -> str:
     """Versión web de finalizar_contratacion que retorna string"""
