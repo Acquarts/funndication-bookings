@@ -5,42 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funndication DJ Bookings</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>🎵 FUNNDICATION DJ BOOKINGS</h1>
-            <p>El mejor manager de DJs especializado en contratación de artistas</p>
-        </div>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="brand-title">Funndication</h1>
+                <span class="brand-subtitle">DJ Management</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Online</span>
+            </div>
+        </header>
         
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">
-                <div class="message-content">
-                    <strong>Funndication DJ Bookings:</strong><br>
-                    ¡Hola! Soy el mejor manager de DJs especializado en contratación de artistas.<br>
-                    Estoy aquí para ayudarte con tu booking. 🎧<br><br>
-                    <strong>¿En qué puedo ayudarte?</strong>
+        <main class="chat-interface">
+            <div class="messages-container" id="messagesContainer">
+                <div class="message assistant-message">
+                    <div class="message-header">
+                        <span class="sender-name">Assistant</span>
+                        <span class="message-time">Now</span>
+                    </div>
+                    <div class="message-content">
+                        Welcome to Funndication DJ Management.
+                        <br><br>
+                        I can help you with:
+                        <br>• Artist booking and contracts
+                        <br>• Pricing and availability
+                        <br>• Event planning consultation
+                        <br><br>
+                        How may I assist you today?
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="chat-input-container">
-            <div class="input-group">
-                <input type="text" id="messageInput" placeholder="Escribe tu mensaje aquí..." autocomplete="off">
-                <button id="sendButton" onclick="sendMessage()">
-                    <span>Enviar</span>
-                </button>
+            
+            <div class="input-section">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Type your message..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button id="sendButton" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
+        </main>
         
-        <!-- Loading indicator -->
-        <div class="loading" id="loading" style="display: none;">
-            <div class="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <p>Procesando tu mensaje...</p>
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
         </div>
     </div>
 

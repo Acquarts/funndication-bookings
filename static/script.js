@@ -1,12 +1,13 @@
-class ChatBot {
+class ChatInterface {
     constructor() {
         this.sessionId = null;
         this.messageInput = document.getElementById('messageInput');
         this.sendButton = document.getElementById('sendButton');
-        this.chatMessages = document.getElementById('chatMessages');
-        this.loading = document.getElementById('loading');
+        this.messagesContainer = document.getElementById('messagesContainer');
+        this.loadingOverlay = document.getElementById('loadingOverlay');
         
         this.initializeEventListeners();
+        this.focusInput();
     }
     
     initializeEventListeners() {
@@ -23,25 +24,37 @@ class ChatBot {
             this.sendMessage();
         });
         
-        // Auto-focus input
-        this.messageInput.focus();
+        // Auto-resize input (optional enhancement)
+        this.messageInput.addEventListener('input', () => {
+            this.adjustInputHeight();
+        });
+    }
+    
+    adjustInputHeight() {
+        this.messageInput.style.height = 'auto';
+        this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
+    }
+    
+    focusInput() {
+        setTimeout(() => this.messageInput.focus(), 100);
     }
     
     async sendMessage() {
         const message = this.messageInput.value.trim();
         
-        if (!message) {
+        if (!message || this.sendButton.disabled) {
             return;
         }
         
-        // Disable input while processing
-        this.setInputState(false);
-        
-        // Add user message to chat
+        // Add user message immediately
         this.addMessage(message, 'user');
         
-        // Clear input
+        // Clear and reset input
         this.messageInput.value = '';
+        this.adjustInputHeight();
+        
+        // Disable input during processing
+        this.setInputState(false);
         
         try {
             // Show loading
@@ -60,7 +73,7 @@ class ChatBot {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Request failed with status ${response.status}`);
             }
             
             const data = await response.json();
@@ -68,22 +81,25 @@ class ChatBot {
             // Update session ID
             this.sessionId = data.session_id;
             
-            // Add bot response to chat
-            this.addMessage(data.response, 'bot');
+            // Add assistant response
+            this.addMessage(data.response, 'assistant');
             
-            // Check if conversation ended
+            // Handle conversation end
             if (data.status === 'completed') {
                 this.handleConversationEnd();
             }
             
         } catch (error) {
-            console.error('Error:', error);
-            this.addMessage('Lo siento, ocurrió un error al procesar tu mensaje. Por favor, intenta de nuevo.', 'bot');
+            console.error('Error sending message:', error);
+            this.addMessage(
+                'I apologize, but I encountered a technical issue. Please try again.',
+                'assistant'
+            );
         } finally {
             // Hide loading and re-enable input
             this.showLoading(false);
             this.setInputState(true);
-            this.messageInput.focus();
+            this.focusInput();
         }
     }
     
@@ -91,88 +107,141 @@ class ChatBot {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
         
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
+        // Create message header
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'message-header';
         
-        if (sender === 'bot') {
-            messageContent.innerHTML = `<strong>Funndication DJ Bookings:</strong><br>${this.formatBotMessage(content)}`;
+        const senderSpan = document.createElement('span');
+        senderSpan.className = 'sender-name';
+        senderSpan.textContent = sender === 'user' ? 'You' : 'Assistant';
+        
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-time';
+        timeSpan.textContent = this.formatTime(new Date());
+        
+        headerDiv.appendChild(senderSpan);
+        headerDiv.appendChild(timeSpan);
+        
+        // Create message content
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (sender === 'assistant') {
+            contentDiv.innerHTML = this.formatAssistantMessage(content);
         } else {
-            messageContent.textContent = content;
+            contentDiv.textContent = content;
         }
         
-        messageDiv.appendChild(messageContent);
-        this.chatMessages.appendChild(messageDiv);
+        messageDiv.appendChild(headerDiv);
+        messageDiv.appendChild(contentDiv);
         
-        // Scroll to bottom
+        this.messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
     }
     
-    formatBotMessage(content) {
-        // Convert newlines to <br> and preserve formatting
+    formatAssistantMessage(content) {
+        // Format the assistant message content
         return content
             .replace(/\n/g, '<br>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code>$1</code>');
+    }
+    
+    formatTime(date) {
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
     }
     
     setInputState(enabled) {
         this.messageInput.disabled = !enabled;
         this.sendButton.disabled = !enabled;
         
+        // Update button appearance
         if (enabled) {
-            this.sendButton.innerHTML = '<span>Enviar</span>';
+            this.sendButton.style.opacity = '1';
         } else {
-            this.sendButton.innerHTML = '<span>...</span>';
+            this.sendButton.style.opacity = '0.5';
         }
     }
     
     showLoading(show) {
-        this.loading.style.display = show ? 'flex' : 'none';
+        this.loadingOverlay.style.display = show ? 'flex' : 'none';
     }
     
     scrollToBottom() {
         setTimeout(() => {
-            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-        }, 100);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }, 50);
     }
     
     handleConversationEnd() {
-        // Add a restart button or message
         setTimeout(() => {
-            const restartDiv = document.createElement('div');
-            restartDiv.className = 'message bot-message';
-            restartDiv.innerHTML = `
-                <div class="message-content">
-                    <strong>¿Necesitas algo más?</strong><br>
-                    Puedes empezar una nueva conversación escribiendo otro mensaje.
-                </div>
-            `;
-            this.chatMessages.appendChild(restartDiv);
-            this.scrollToBottom();
+            this.addMessage(
+                'Thank you for using our service. Feel free to start a new conversation anytime.',
+                'assistant'
+            );
             
-            // Reset session
+            // Reset session for new conversation
             this.sessionId = null;
-        }, 2000);
+        }, 1500);
     }
 }
 
-// Initialize chat when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const chatBot = new ChatBot();
+// Utility functions
+const utils = {
+    // Debounce function for performance
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
     
-    // Global function for inline onclick (backup)
-    window.sendMessage = () => chatBot.sendMessage();
+    // Check if device is mobile
+    isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+};
+
+// Initialize the chat interface when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const chatInterface = new ChatInterface();
+    
+    // Add some mobile-specific optimizations
+    if (utils.isMobile()) {
+        document.body.classList.add('mobile-device');
+        
+        // Adjust viewport on mobile keyboard show/hide
+        const viewport = document.querySelector('meta[name=viewport]');
+        if (viewport) {
+            viewport.setAttribute('content', 
+                'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+            );
+        }
+    }
+    
+    // Handle visibility change (tab focus/blur)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            chatInterface.focusInput();
+        }
+    });
 });
 
-// Service Worker registration (optional, for PWA features)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/sw.js')
-            .then((registration) => {
-                console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
+// Error handling for uncaught errors
+window.addEventListener('error', (event) => {
+    console.error('Uncaught error:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+});
