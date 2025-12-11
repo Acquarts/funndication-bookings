@@ -1,89 +1,89 @@
 # Funndication DJ Bookings
 
-Sistema inteligente de contratación de DJs con integración de IA para gestionar bookings, disponibilidad y precios de forma automatizada.
+Intelligent DJ booking system with AI integration to manage bookings, availability, and pricing automatically.
 
-## Descripción
+## Description
 
-Funndication DJ Bookings es una aplicación web que facilita la contratación de DJs especializados en Break Beat. El sistema utiliza inteligencia artificial (OpenAI) para mantener conversaciones naturales con los clientes, gestionar la disponibilidad de artistas y calcular precios automáticamente según localización y duración del evento.
+Funndication DJ Bookings is a web application that facilitates the booking of DJs specialized in Break Beat. The system uses artificial intelligence (OpenAI) to maintain natural conversations with clients, manage artist availability, and automatically calculate prices based on location and event duration.
 
-## Características
+## Features
 
-- **Chat inteligente con IA**: Conversaciones naturales usando OpenAI GPT para analizar intenciones y responder consultas
-- **Gestión de disponibilidad**: Sistema de base de datos para verificar fechas ocupadas en tiempo real
-- **Cálculo automático de precios**: Tarifas diferenciadas por localización (Málaga, fuera de Málaga, internacional)
-- **Recopilación de datos**: Flujo guiado para obtener información del evento y cliente
-- **Base de conocimientos**: Extracción de información desde PDFs con datos de artistas
-- **API REST**: Backend FastAPI con endpoints documentados
-- **Interfaz web**: Frontend moderno con chat interactivo
-- **Persistencia de datos**: Base de datos SQLite para almacenar contrataciones
+- **Intelligent AI Chat**: Natural conversations using OpenAI GPT to analyze intentions and respond to queries
+- **Availability Management**: Database system to verify occupied dates in real-time
+- **Automatic Price Calculation**: Differentiated rates by location (Málaga, outside Málaga, international)
+- **Data Collection**: Guided flow to obtain event and client information
+- **Knowledge Base**: Information extraction from PDFs with artist data
+- **REST API**: FastAPI backend with documented endpoints
+- **Web Interface**: Modern frontend with interactive chat
+- **Data Persistence**: SQLite database to store bookings
 
-## Tecnologías
+## Technologies
 
 ### Backend
 - **Python 3.x**
-- **FastAPI**: Framework web moderno y de alto rendimiento
-- **Uvicorn**: Servidor ASGI
-- **SQLite**: Base de datos embebida
-- **PyPDF2**: Extracción de texto desde PDFs
-- **OpenAI API**: Integración de inteligencia artificial
-- **Pydantic**: Validación de datos
+- **FastAPI**: Modern, high-performance web framework
+- **Uvicorn**: ASGI server
+- **SQLite**: Embedded database
+- **PyPDF2**: Text extraction from PDFs
+- **OpenAI API**: Artificial intelligence integration
+- **Pydantic**: Data validation
 
 ### Frontend
 - HTML5, CSS3, JavaScript
-- Interfaz de chat interactiva
+- Interactive chat interface
 
 ### Deployment
-- Compatible con Railway, Heroku y servicios similares
-- Configuración lista para producción
+- Compatible with Railway, Heroku, and similar services
+- Production-ready configuration
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 TestingClaudeCode/
-├── app.py                      # API FastAPI principal
-├── main.py                     # Lógica del chatbot y procesamiento
-├── openai_handler.py           # Integración con OpenAI
-├── requirements.txt            # Dependencias Python
-├── .env.example               # Plantilla de variables de entorno
-├── Procfile                   # Configuración para deployment
-├── railway.json               # Configuración Railway
-├── contrataciones.sql         # Schema de base de datos
-├── contrataciones.db          # Base de datos SQLite
-├── ChatBotFunndicationData.pdf       # Base de conocimientos (DJs)
-├── ChatBotFunndicationPrompt.pdf     # Instrucciones del chatbot
-├── static/                    # Archivos frontend
+├── app.py                      # Main FastAPI API
+├── main.py                     # Chatbot logic and processing
+├── openai_handler.py           # OpenAI integration
+├── requirements.txt            # Python dependencies
+├── .env.example               # Environment variables template
+├── Procfile                   # Deployment configuration
+├── railway.json               # Railway configuration
+├── contrataciones.sql         # Database schema
+├── contrataciones.db          # SQLite database
+├── ChatBotFunndicationData.pdf       # Knowledge base (DJs)
+├── ChatBotFunndicationPrompt.pdf     # Chatbot instructions
+├── static/                    # Frontend files
 │   ├── index.html
 │   ├── style.css
 │   └── script.js
-├── demo.html                  # Demo standalone
-└── tests/                     # Scripts de prueba
+├── demo.html                  # Standalone demo
+└── tests/                     # Test scripts
     ├── test_server.py
     ├── test_flow.py
     └── simple_test.py
 ```
 
-## Instalación
+## Installation
 
-### Prerrequisitos
+### Prerequisites
 
-- Python 3.8 o superior
-- pip (gestor de paquetes Python)
-- Cuenta OpenAI con API key (opcional pero recomendado)
+- Python 3.8 or higher
+- pip (Python package manager)
+- OpenAI account with API key (optional but recommended)
 
-### Pasos
+### Steps
 
-1. **Clonar el repositorio**
+1. **Clone the repository**
 ```bash
-git clone <url-del-repositorio>
+git clone <repository-url>
 cd TestingClaudeCode
 ```
 
-2. **Crear entorno virtual**
+2. **Create virtual environment**
 ```bash
 python -m venv venv
 ```
 
-3. **Activar entorno virtual**
+3. **Activate virtual environment**
 
 Windows:
 ```bash
@@ -95,74 +95,74 @@ macOS/Linux:
 source venv/bin/activate
 ```
 
-4. **Instalar dependencias**
+4. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-5. **Configurar variables de entorno**
+5. **Configure environment variables**
 ```bash
 cp .env.example .env
 ```
 
-Editar [.env](.env) y añadir tu API key de OpenAI:
+Edit [.env](.env) and add your OpenAI API key:
 ```env
-OPENAI_API_KEY=tu_api_key_aqui
+OPENAI_API_KEY=your_api_key_here
 OPENAI_MODEL=gpt-3.5-turbo
 OPENAI_BASE_URL=https://api.openai.com/v1
 ```
 
-6. **Inicializar la base de datos**
+6. **Initialize database**
 
-La base de datos se inicializa automáticamente al arrancar la aplicación. El schema está definido en [contrataciones.sql](contrataciones.sql).
+The database initializes automatically when starting the application. The schema is defined in [contrataciones.sql](contrataciones.sql).
 
-## Uso
+## Usage
 
-### Modo Web (Producción)
+### Web Mode (Production)
 
-Iniciar el servidor FastAPI:
+Start the FastAPI server:
 ```bash
 python app.py
 ```
 
-O con uvicorn directamente:
+Or with uvicorn directly:
 ```bash
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-La aplicación estará disponible en: `http://localhost:8000`
+The application will be available at: `http://localhost:8000`
 
-### Modo CLI (Desarrollo)
+### CLI Mode (Development)
 
-Ejecutar el chatbot en línea de comandos:
+Run the chatbot in command line:
 ```bash
 python main.py
 ```
 
-### Endpoints API
+### API Endpoints
 
 #### POST `/chat`
-Enviar mensaje al chatbot
+Send message to chatbot
 
 **Request:**
 ```json
 {
-  "message": "Quiero contratar un DJ",
-  "session_id": "opcional-uuid"
+  "message": "I want to book a DJ",
+  "session_id": "optional-uuid"
 }
 ```
 
 **Response:**
 ```json
 {
-  "response": "¡Perfecto! Te muestro todos los DJs...",
-  "session_id": "uuid-de-sesion",
+  "response": "Perfect! I'll show you all the DJs...",
+  "session_id": "session-uuid",
   "status": "active"
 }
 ```
 
 #### GET `/health`
-Verificar estado del servicio
+Verify service status
 
 **Response:**
 ```json
@@ -172,35 +172,35 @@ Verificar estado del servicio
 }
 ```
 
-## Artistas Disponibles
+## Available Artists
 
-El sistema gestiona 5 DJs especializados en Break Beat:
+The system manages 5 DJs specialized in Break Beat:
 
-- **The Brainkiller**: 1.600€ (Málaga) / 1.800€ (fuera Málaga) / 2.500€ (internacional)
-- **Jose Rodriguez**: 1.000€ / 1.200€ / 1.900€
-- **Tortu**: 1.200€ / 1.400€ / 2.100€
-- **V. Aparicio**: 600€ / 800€ / 1.500€
-- **Wardian**: 600€ / 800€ / 1.500€
+- **The Brainkiller**: €1,600 (Málaga) / €1,800 (outside Málaga) / €2,500 (international)
+- **Jose Rodriguez**: €1,000 / €1,200 / €1,900
+- **Tortu**: €1,200 / €1,400 / €2,100
+- **V. Aparicio**: €600 / €800 / €1,500
+- **Wardian**: €600 / €800 / €1,500
 
-**Precios base:** 1 hora de actuación
-**Horas adicionales:** +300€ por hora
+**Base prices:** 1 hour performance
+**Additional hours:** +€300 per hour
 
-## Flujo de Contratación
+## Booking Flow
 
-1. **Inicio de conversación**: El usuario expresa interés en contratar
-2. **Selección de DJ**: Se muestran todos los artistas con información completa
-3. **Recopilación de datos**:
-   - Localización del evento
-   - Fecha (con verificación de disponibilidad)
-   - Duración de la actuación
-   - Nombre y apellidos del cliente
-   - Teléfono
-   - Correo electrónico
-4. **Cálculo de precio**: Automático según DJ, localización y duración
-5. **Resumen y confirmación**: Detalles completos de la contratación
-6. **Guardado en base de datos**: Registro persistente de la transacción
+1. **Conversation start**: User expresses interest in booking
+2. **DJ selection**: All artists are shown with complete information
+3. **Data collection**:
+   - Event location
+   - Date (with availability verification)
+   - Performance duration
+   - Client's first and last name
+   - Phone number
+   - Email address
+4. **Price calculation**: Automatic based on DJ, location, and duration
+5. **Summary and confirmation**: Complete booking details
+6. **Database storage**: Persistent transaction record
 
-## Base de Datos
+## Database
 
 Schema: [contrataciones.sql](contrataciones.sql:1-16)
 
@@ -220,108 +220,108 @@ CREATE TABLE contrataciones (
 );
 ```
 
-## Integración con OpenAI
+## OpenAI Integration
 
-El sistema puede funcionar con o sin OpenAI:
+The system can work with or without OpenAI:
 
-**Con OpenAI** (recomendado):
-- Conversaciones naturales
-- Análisis de intenciones
-- Respuestas contextuales
-- Extracción de entidades
+**With OpenAI** (recommended):
+- Natural conversations
+- Intent analysis
+- Contextual responses
+- Entity extraction
 
-**Sin OpenAI** (fallback):
-- Sistema basado en palabras clave
-- Respuestas predefinidas
-- Funcionalidad básica garantizada
+**Without OpenAI** (fallback):
+- Keyword-based system
+- Predefined responses
+- Basic functionality guaranteed
 
-La integración se gestiona en [openai_handler.py](openai_handler.py:1-219).
+Integration is managed in [openai_handler.py](openai_handler.py:1-219).
 
 ## Deployment
 
 ### Railway
 
-1. Conectar repositorio a Railway
-2. Configurar variables de entorno en el dashboard
-3. Railway detectará automáticamente [Procfile](Procfile) y [railway.json](railway.json)
-4. Deploy automático
+1. Connect repository to Railway
+2. Configure environment variables in the dashboard
+3. Railway will automatically detect [Procfile](Procfile) and [railway.json](railway.json)
+4. Automatic deployment
 
 ### Heroku
 
 ```bash
-heroku create nombre-app
-heroku config:set OPENAI_API_KEY=tu_api_key
+heroku create app-name
+heroku config:set OPENAI_API_KEY=your_api_key
 git push heroku main
 ```
 
-### Variables de entorno requeridas
+### Required environment variables
 
 ```env
-OPENAI_API_KEY=sk-...        # Requerido para IA
-OPENAI_MODEL=gpt-3.5-turbo   # Opcional
-PORT=8000                     # Puerto (auto en Railway/Heroku)
+OPENAI_API_KEY=sk-...        # Required for AI
+OPENAI_MODEL=gpt-3.5-turbo   # Optional
+PORT=8000                     # Port (auto on Railway/Heroku)
 ```
 
 ## Testing
 
-Ejecutar tests:
+Run tests:
 ```bash
-# Test básico del servidor
+# Basic server test
 python test_server.py
 
-# Test de flujo completo
+# Complete flow test
 python test_flow.py
 
-# Test simple
+# Simple test
 python simple_test.py
 ```
 
-## Documentación Adicional
+## Additional Documentation
 
-- [OPENAI_SETUP.md](OPENAI_SETUP.md): Guía de configuración de OpenAI
-- [FILES_TO_UPLOAD.md](FILES_TO_UPLOAD.md): Archivos necesarios para deployment
-- [GIT_COMMANDS.md](GIT_COMMANDS.md): Comandos Git útiles
+- [OPENAI_SETUP.md](OPENAI_SETUP.md): OpenAI configuration guide
+- [FILES_TO_UPLOAD.md](FILES_TO_UPLOAD.md): Files needed for deployment
+- [GIT_COMMANDS.md](GIT_COMMANDS.md): Useful Git commands
 
-## Seguridad
+## Security
 
-- Las API keys se cargan desde variables de entorno
-- Archivo `.env` incluido en `.gitignore`
-- Validación de datos con Pydantic
-- Sesiones aisladas por UUID
-- Verificación de disponibilidad en tiempo real
+- API keys loaded from environment variables
+- `.env` file included in `.gitignore`
+- Data validation with Pydantic
+- Sessions isolated by UUID
+- Real-time availability verification
 
-## Mejoras Futuras
+## Future Improvements
 
-- [ ] Autenticación de usuarios
-- [ ] Panel de administración
-- [ ] Notificaciones por email automáticas
-- [ ] Integración con calendario
-- [ ] Sistema de pagos online
-- [ ] Soporte multiidioma
-- [ ] Analytics y reportes
-- [ ] Webhooks para integraciones
+- [ ] User authentication
+- [ ] Administration panel
+- [ ] Automatic email notifications
+- [ ] Calendar integration
+- [ ] Online payment system
+- [ ] Multi-language support
+- [ ] Analytics and reports
+- [ ] Webhooks for integrations
 
-## Contribuciones
+## Contributions
 
-Las contribuciones son bienvenidas. Por favor:
+Contributions are welcome. Please:
 
-1. Fork del repositorio
-2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit de cambios (`git commit -am 'Añadir nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/new-functionality`)
+3. Commit changes (`git commit -am 'Add new functionality'`)
+4. Push to branch (`git push origin feature/new-functionality`)
+5. Create Pull Request
 
-## Licencia
+## License
 
-Este proyecto es privado y propiedad de Funndication Bookings.
+This project is private and property of Funndication Bookings.
 
-## Contacto
+## Contact
 
-Para soporte o consultas sobre el sistema:
+For support or system inquiries:
 - Email: info@funndication.com
 - Press Kits: https://www.funndarkbookings/presskits.com
-- Número de cuenta: 78979566700116362718
+- Account number: 78979566700116362718
 
 ---
 
-**Desarrollado con FastAPI y OpenAI** | **Especializado en Break Beat DJs**
+**Developed with FastAPI and OpenAI** | **Specialized in Break Beat DJs**
